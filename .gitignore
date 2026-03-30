@@ -6,6 +6,10 @@ bin-release/
 
 # Other files and folders
 .settings/
+data/
+models/
+.venv
+/uv.lock
 
 # Executables
 *.swf
