@@ -1,0 +1,12 @@
+# Virtual environment — excluded from Flower FAB bundle
+.venv/
+
+# Data files — excluded from Flower FAB bundle (too large)
+*.csv
+*.pt
+*.pth
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
