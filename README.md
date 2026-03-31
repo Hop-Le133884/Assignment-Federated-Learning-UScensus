@@ -54,7 +54,7 @@ Before starting, make sure you have the following installed on your system:
 
 ---
 
-## Project Structure
+## Project Structure after the running the simulation
 
 ```
 quickstart-pytorch/
@@ -97,7 +97,7 @@ quickstart-pytorch/
 
 ```bash
 git clone <repository-url>
-cd quickstart-pytorch
+cd Assignment-Federated-Learning-UScensus
 ```
 
 Verify the raw dataset exists:
@@ -173,34 +173,12 @@ python -c "import flwr, pandas, matplotlib; print('All imports OK')"
 
 This step cleans the raw UCI Adult dataset, normalizes numeric features, and one-hot encodes categorical features — producing 87 input features.
 
-**Option A — Run via Jupyter Notebook (interactive, recommended for first time)**:
-
-```bash
-jupyter notebook preparing_data.ipynb
-```
+**Run Jupyter Notebook**:
 
 Run all cells from top to bottom. The notebook walks through:
 1. Exploring the raw data (shape, missing values, label distribution)
 2. Preprocessing training data → `data/preprocessed/adult_preprocessed.csv`
 3. Preprocessing test data → `data/preprocessed/adult_test_preprocessed.csv`
-
-**Option B — Run via Python directly**:
-
-```bash
-python utils/data_preprocessing.py \
-    --input data/adult/adult.data \
-    --output data/preprocessed/adult_preprocessed.csv \
-    --stats data/preprocessed/preprocessing_stats.json
-```
-
-After this step, verify:
-```bash
-ls data/preprocessed/
-# Expected:
-#   adult_preprocessed.csv        (~17 MB)
-#   adult_test_preprocessed.csv   (~8 MB)
-#   preprocessing_stats.json
-```
 
 > **What preprocessing does**:
 > - Normalizes: `age`, `education_num`, `capital_gain`, `capital_loss`, `hours_per_week`
@@ -211,7 +189,7 @@ ls data/preprocessed/
 
 ### Step 5 — Prepare Data Splits for Clients
 
-This step splits the preprocessed training data into **5 non-IID client datasets**, partitioned by education level (simulating real-world data heterogeneity).
+This step splits the preprocessed training data into **5 non-IID client datasets**, partitioned by education level.
 
 ```bash
 ./data_splits_prep.sh
@@ -234,19 +212,11 @@ The script accepts optional arguments:
 | `workspace/client_5/train.csv` | ~8,000 rows | Bachelors – Doctorate |
 | `workspace/server/test.csv` | ~16,000 rows | Centralized evaluation set |
 
-Verify:
-```bash
-ls workspace/client_1/
-# Expected: train.csv
-
-wc -l workspace/client_*/train.csv workspace/server/test.csv
-```
-
----
 
 ### Step 6 — Generate Flower App Files and Workspace Environment
 
-This step generates the Flower application code (`model.py`, `task.py`, `client_app.py`, `server_app.py`) into the workspace and sets up a **separate Python virtual environment** for running the simulation.
+This step generates a bundle the Flower application code (`model.py`, `task.py`, `client_app.py`, `server_app.py`) 
+into the workspace and sets up a **separate Python virtual environment** for running the simulation.
 
 ```bash
 ./jobs_gen.sh
@@ -269,17 +239,8 @@ workspace/
 └── .venv/            # Python 3.12 venv with workspace deps installed
 ```
 
-This step also installs **PyTorch** and **Flower simulation** inside `workspace/.venv`. This may take a few minutes on first run.
+This step also installs **PyTorch** and **Flower simulation** inside `workspace/.venv`
 
-Verify:
-```bash
-ls workspace/
-# Expected: .venv/  client_1/ ... client_5/ server/ model.py task.py client_app.py server_app.py pyproject.toml
-
-workspace/.venv/bin/python -c "import torch, flwr; print('Workspace env OK')"
-```
-
----
 
 ### Step 7 — Run the Federated Learning Experiment
 
@@ -360,9 +321,9 @@ The experiment is configured in `workspace/pyproject.toml`:
 ```toml
 [tool.flwr.app.config]
 num-server-rounds = 10       # Number of FL communication rounds
-fraction-evaluate = 1.0      # Fraction of clients used for evaluation per round
-local-epochs = 3             # Local training epochs per client per round
-learning-rate = 0.001        # Adam optimizer learning rate
+fraction-evaluate = 0.6      # Fraction of clients used for evaluation per round
+local-epochs = 1             # Local training epochs per client per round
+learning-rate = 0.01        # Adam optimizer learning rate
 batch-size = 64              # Mini-batch size for local training
 ```
 
@@ -385,8 +346,6 @@ To change the number of clients, pass an argument to the shell scripts:
 | `communication_round_train_loss` | ~0.43 | ~0.31 | Average client training loss |
 
 > **Why does round 0 accuracy start at ~23%?** The model is randomly initialized. Round 0 runs a global evaluation before any training starts. The first real training round is round 1.
-
----
 
 ## Troubleshooting
 

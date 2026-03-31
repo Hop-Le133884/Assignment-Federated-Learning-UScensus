@@ -6,8 +6,9 @@ bin-release/
 
 # Other files and folders
 .settings/
-data/
+data/*
 models/
+
 .venv
 /uv.lock
 

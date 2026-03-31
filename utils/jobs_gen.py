@@ -15,10 +15,7 @@ import torch.nn as nn
 
 
 class MLP(nn.Module):
-    """Multi-layer perceptron for binary classification (raw logit output).
-
-    Use BCEWithLogitsLoss as the loss function — it applies sigmoid internally
-    for numerical stability.
+    """Simple two layers for binary classification.
     """
 
     def __init__(self, input_dim: int):
@@ -353,9 +350,9 @@ clientapp = "client_app:app"
 
 [tool.flwr.app.config]
 num-server-rounds = 10
-fraction-evaluate = 1.0
-local-epochs = 3
-learning-rate = 0.001
+fraction-evaluate = 0.6
+local-epochs = 1
+learning-rate = 0.01
 batch-size = 64
 workspace-path = "./workspace"
 '''
@@ -395,19 +392,6 @@ def generate(workspace: str, num_clients: int):
     _write(ws / "server_app.py", SERVER_APP_PY)
     _write(ws / "pyproject.toml", PYPROJECT_TOML)
     _write(ws / ".gitignore", GITIGNORE)
-
-    # # Per-client reference copies (educational — shows what each client runs)
-    # for i in range(1, num_clients + 1):
-    #     client_dir = ws / f"client_{i}"
-    #     client_dir.mkdir(parents=True, exist_ok=True)
-    #     header = f'"""client_app.py — Reference copy for Client {i}.\nSee workspace/client_app.py for the active version used in simulation.\n"""\n\n'
-    #     _write(client_dir / "client_app.py", header + CLIENT_APP_PY)
-
-    # # Server reference copy
-    # server_dir = ws / "server"
-    # server_dir.mkdir(parents=True, exist_ok=True)
-    # header = '"""server_app.py — Reference copy for Server.\nSee workspace/server_app.py for the active version used in simulation.\n"""\n\n'
-    # _write(server_dir / "server_app.py", header + SERVER_APP_PY)
 
     print(f"\nDone. Run 'docker..' to start training.")
 
