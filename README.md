@@ -2,27 +2,23 @@
 
 A federated learning example using **Flower** and **PyTorch** to train a binary classifier (income > $50K vs ≤ $50K) on the UCI Adult Income dataset across 5 simulated clients.
 
----
-
 ## Table of Contents
 
-- [What This Project Does](#what-this-project-does)
-- [Prerequisites](#prerequisites)
-- [Project Structure](#project-structure)
-- [Step-by-Step Setup and Run](#step-by-step-setup-and-run)
-  - [Step 1 — Clone or Download the Project](#step-1--clone-or-download-the-project)
-  - [Step 2 — Install uv (Python Package Manager)](#step-2--install-uv-python-package-manager)
-  - [Step 3 — Create the Root Virtual Environment](#step-3--create-the-root-virtual-environment)
-  - [Step 4 — Preprocess the Data](#step-4--preprocess-the-data)
-  - [Step 5 — Prepare Data Splits for Clients](#step-5--prepare-data-splits-for-clients)
-  - [Step 6 — Generate Flower App Files and Workspace Environment](#step-6--generate-flower-app-files-and-workspace-environment)
-  - [Step 7 — Run the Federated Learning Experiment](#step-7--run-the-federated-learning-experiment)
-  - [Step 8 — Visualize the Results](#step-8--visualize-the-results)
-- [Configuration](#configuration)
-- [Understanding the Output](#understanding-the-output)
-- [Troubleshooting](#troubleshooting)
-
----
+- What This Project Does
+- Prerequisites
+- Project Structure
+- Step-by-Step Setup and Run
+  - Step 1 — Clone or Download the Project
+  - Step 2 — Install uv (Python Package Manager)
+  - Step 3 — Create the Root Virtual Environment
+  - Step 4 — Preprocess the Data
+  - Step 5 — Prepare Data Splits for Clients
+  - Step 6 — Generate Flower App Files and Workspace Environment
+  - Step 7 — Run the Federated Learning Experiment
+  - Step 8 — Visualize the Results
+- Configuration
+- Understanding the Output
+- Troubleshooting
 
 ## What This Project Does
 
@@ -38,8 +34,6 @@ This project simulates a **federated learning** scenario:
 
 **Dataset**: [UCI Adult Income](https://archive.ics.uci.edu/dataset/2/adult) — 48,842 records, 14 demographic/economic features
 
----
-
 ## Prerequisites
 
 Before starting, make sure you have the following installed on your system:
@@ -50,9 +44,6 @@ Before starting, make sure you have the following installed on your system:
 | uv | latest | `uv --version` |
 | Git | any | `git --version` |
 
-> **Note**: A GPU is not required. The model is small and runs on CPU in a few minutes.
-
----
 
 ## Project Structure after the running the simulation
 
@@ -60,9 +51,9 @@ Before starting, make sure you have the following installed on your system:
 quickstart-pytorch/
 ├── data/
 │   ├── adult/                          # Raw UCI Adult dataset
-│   │   ├── adult.data                  # Training records (32,560 rows)
-│   │   └── adult.test                  # Test records (16,281 rows)
-│   └── preprocessed/                   # Auto-generated after Step 4
+│   │   ├── adult.data                  # Training records
+│   │   └── adult.test                  # Test records 
+│   └── preprocessed/                   # 
 │       ├── adult_preprocessed.csv
 │       ├── adult_test_preprocessed.csv
 │       └── preprocessing_stats.json
@@ -70,7 +61,7 @@ quickstart-pytorch/
 │   ├── data_preprocessing.py           # Feature engineering & normalization
 │   ├── data_preparation.py             # Non-IID data splitting for clients
 │   └── jobs_gen.py                     # Generates Flower app files
-├── workspace/                          # Auto-generated after Step 5 & 6
+├── workspace/                          # 
 │   ├── client_1/ … client_5/           # Per-client training CSV splits
 │   ├── server/test.csv                 # Centralized server test set
 │   ├── model.py                        # MLP neural network
@@ -78,18 +69,16 @@ quickstart-pytorch/
 │   ├── client_app.py                   # Flower ClientApp
 │   ├── server_app.py                   # Flower ServerApp
 │   ├── pyproject.toml                  # Workspace dependencies
-│   └── report/                         # Auto-generated after Step 7
+│   └── report/                         #
 │       ├── accuracy_vs_rounds.csv
 │       └── loss_vs_rounds.csv
-├── preparing_data.ipynb                # Optional: interactive preprocessing notebook
+├── preparing_data.ipynb                # interactive preprocessing notebook
 ├── acc_loss_visualization.py           # Plot accuracy & loss charts
 ├── data_splits_prep.sh                 # Shell script for Step 5
 ├── jobs_gen.sh                         # Shell script for Step 6
 ├── run_fl_experiment.sh                # Shell script for Step 7
 └── pyproject.toml                      # Root project dependencies
 ```
-
----
 
 ## Step-by-Step Setup and Run
 
@@ -109,7 +98,6 @@ ls data/adult/
 
 > If `data/adult/` is empty or missing, download the dataset from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/2/adult) and place `adult.data` and `adult.test` inside `data/adult/`.
 
----
 
 ### Step 2 — Install uv (Python Package Manager)
 
@@ -125,9 +113,9 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.sh | iex"
 ```
 
-After installation, reload your shell:
+After installation, read instruction to reload your shell:
 ```bash
-source ~/.bashrc   # or source ~/.zshrc
+source.....
 ```
 
 Verify:
@@ -135,8 +123,6 @@ Verify:
 uv --version
 # e.g.: uv 0.7.x
 ```
-
----
 
 ### Step 3 — Create the Root Virtual Environment
 
@@ -185,7 +171,6 @@ Run all cells from top to bottom. The notebook walks through:
 > - One-hot encodes: `workclass`, `marital_status`, `occupation`, `relationship`, `race`, `sex`, `native_country`
 > - Label: `income` → 1 if `>50K`, else 0
 
----
 
 ### Step 5 — Prepare Data Splits for Clients
 
@@ -249,6 +234,12 @@ Run the FL simulation. This executes 10 communication rounds, training the globa
 ```bash
 ./run_fl_experiment.sh
 ```
+will output a **logstream for run_id 'random-number-id'**
+
+then run to see the log: 
+```bash
+./run_fl_experiment.sh log 'random-number-id'
+```
 
 **What happens during the run**:
 
@@ -275,10 +266,7 @@ INFO : [ROUND 10] global_accuracy=0.8503  global_loss=0.3238
 INFO : Metrics saved to workspace/report/
 ```
 
-**To stream logs for a specific run** (if run in background):
-```bash
-./run_fl_experiment.sh log <run-id>
-```
+
 
 After the run, verify results:
 ```bash

@@ -14,8 +14,8 @@ WORKSPACE="./workspace"
 ABS_WORKSPACE="$(realpath "$WORKSPACE")"
 FLWR="$ABS_WORKSPACE/.venv/bin/flwr"
 
-# Write project-local flwr config (num-supernodes=5) so global ~/.flwr/config.toml
-# on any machine is never read or modified.
+# Write project-local flwr config so global ~/.flwr/config.toml is never touched.
+# address = ":local:" is required by flwr >= 1.28 for in-process simulation.
 FLWR_HOME="$SCRIPT_DIR/.flwr"
 mkdir -p "$FLWR_HOME"
 cat > "$FLWR_HOME/config.toml" << 'EOF'
@@ -23,9 +23,19 @@ cat > "$FLWR_HOME/config.toml" << 'EOF'
 default = "local-simulation"
 
 [superlink.local-simulation]
-options.num-supernodes = 5
+address = ":local:"
 EOF
 export FLWR_HOME
+
+# Kill any flower-superlink process from a previous failed run.
+# If the old process is still alive it holds an open file handle on the stale
+# state.db; a new run will reuse that broken SuperLink instead of starting fresh.
+pkill -f "flower-superlink.*$(basename "$FLWR_HOME")" 2>/dev/null || true
+sleep 1
+
+# Clear stale SuperLink state (db + ffs objects) from any previous failed run.
+# Must happen AFTER killing the process so the db file descriptor is released.
+rm -rf "$FLWR_HOME/local-superlink"
 
 if [ ! -f "$FLWR" ]; then
     echo "Error: workspace venv not found. Run ./jobs_gen.sh first."
@@ -49,4 +59,6 @@ echo "======================================="
 export PATH="$ABS_WORKSPACE/.venv/bin:$PATH"
 
 "$FLWR" run "$WORKSPACE/" local-simulation \
-    --run-config "workspace-path=\"$ABS_WORKSPACE\""
+    --federation-config "num-supernodes=5" \
+    --run-config "workspace-path=\"$ABS_WORKSPACE\"" \
+    --stream

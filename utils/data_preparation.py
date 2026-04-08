@@ -6,18 +6,18 @@ from pathlib import Path
 
 import pandas as pd
 
-# Allow importing sibling utils from project root
+# Allow importing utils from project root
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.data_preprocessing import preprocess_test
 
 # Non-IID split: education_num values (1–16) grouped into 5 buckets.
 
 EDUCATION_BUCKETS_5 = {
-    1: list(range(1, 6)),    # Preschool
-    2: list(range(6, 9)),    # 7th-8th
-    3: [9],                  # High school graduate
-    4: list(range(10, 13)),  # Some college
-    5: list(range(13, 17)),  # Bachelors → Doctorate
+    1: list(range(1, 6)),    # Preschool, 1st-4th, 5th-6th, 7th-8th, 9th
+    2: list(range(6, 9)),    # 10th, 11th, 12th
+    3: [9],                  # HS-grad
+    4: list(range(10, 13)),  # Some-college, Assoc-voc, Assoc-acdm
+    5: list(range(13, 17)),  # Bachelors, Masters, Prof-school, Doctorate
 }
 
 

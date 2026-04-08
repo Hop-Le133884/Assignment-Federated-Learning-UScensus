@@ -1,12 +1,9 @@
 """utils/jobs_gen.py — Generate Flower app files into workspace/."""
 
 import argparse
-import shutil
 from pathlib import Path
 
-# ---------------------------------------------------------------------------
 # Generated file templates
-# ---------------------------------------------------------------------------
 
 MODEL_PY = '''\
 """model.py — MLP for Adult Income binary classification."""
@@ -297,26 +294,24 @@ def _save_metrics(report_dir: Path, result) -> None:
     all_rounds     = sorted(server_metrics.keys())       # includes round 0 (pre-training)
 
     # accuracy_vs_rounds.csv
-    # global_accuracy  = server evaluates global model on centralized test set each round
-    # communication_round_eval_acc = client eval from the NEXT round (shifted +1)
+    # global_accuracy             = server evaluates global model on centralized test set each round
+    # communication_round_eval_acc = client eval on clients's test set and Fedavg them
     with open(report_dir / "accuracy_vs_rounds.csv", "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["round", "global_accuracy", "communication_round_eval_acc"])
         for rnd in all_rounds:
             global_acc = server_metrics[rnd]["accuracy"]
-            client_acc = client_eval[rnd + 1]["eval_acc"] if (rnd + 1) in client_eval else ""
+            client_acc = client_eval[rnd]["eval_acc"] if rnd in client_eval else ""
             writer.writerow([rnd, global_acc, client_acc])
     print("  Saved accuracy_vs_rounds.csv")
 
     # loss_vs_rounds.csv
-    # global_eval_loss             = server eval loss of model after round N
-    # communication_round_train_loss = client train loss from the NEXT round (shifted +1)
     with open(report_dir / "loss_vs_rounds.csv", "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["round", "global_eval_loss", "communication_round_train_loss"])
         for rnd in all_rounds:
             eval_loss  = server_metrics[rnd]["loss"]
-            train_loss = client_train[rnd + 1]["train_loss"] if (rnd + 1) in client_train else ""
+            train_loss = client_train[rnd]["train_loss"] if rnd in client_train else ""
             writer.writerow([rnd, eval_loss, train_loss])
     print("  Saved loss_vs_rounds.csv")
 '''
@@ -383,7 +378,7 @@ def generate(workspace: str, num_clients: int):
     ws = Path(workspace)
     ws.mkdir(parents=True, exist_ok=True)
 
-    print(f"\nGenerating Flower app files in {ws}/")
+    print(f"\nGenerating Flower app files in {ws}/...")
 
     # Shared workspace-root files (the actual Flower app)
     _write(ws / "model.py", MODEL_PY)

@@ -13,15 +13,15 @@ COLUMN_NAMES = [
     "capital_gain", "capital_loss", "hours_per_week", "native_country", "income",
 ]
 
-NUMERIC_COLS = ["age", "education_num", "capital_gain", "capital_loss", "hours_per_week"]
+NUMERIC_COLS = ["age", "fnlwgt", "education_num", "capital_gain", "capital_loss", "hours_per_week"]
 CATEGORICAL_COLS = ["workclass", "marital_status", "occupation", "relationship", "race", "sex", "native_country"]
 
 
 def _clean(df: pd.DataFrame) -> pd.DataFrame:
     """Replace '?' with NaN, drop NaN rows, drop redundant columns."""
     df = df.replace("?", np.nan).dropna()
-    # Drop fnlwgt (census weight, not predictive) and education text (use education_num)
-    df = df.drop(columns=["fnlwgt", "education"])
+    # Drop education text (use education_num)
+    df = df.drop(columns=["education"])
     return df
 
 
@@ -46,8 +46,7 @@ def preprocess(input_path: str, output_path: str, stats_output_path: str = None)
     df = _clean(df)
     df = _encode_label(df)
 
-    # Preserve raw education_num integer (used by data_preparation.py for non-IID splitting)
-    # before z-score normalization transforms it to floats.
+    # Preserve raw education_num integer before z-score normalization transforms it to floats.
     df["_edu_num_raw"] = df["education_num"].astype(int)
 
     # Normalize numeric columns — fit on training data
@@ -123,7 +122,6 @@ def preprocess_test(input_path: str, output_path: str, stats_path: str):
     print(f"[preprocess_test] {len(df)} rows | {len(feature_cols)} features | labels: {label_dist}")
     print(f"[preprocess_test] Saved → {output_path}")
     return df
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Preprocess UCI Adult Income dataset")
